@@ -9,11 +9,15 @@ class Member extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'user_id'];
 
-    // Relationship with contributions (will be used later)
     public function contributions()
     {
         return $this->hasMany(Contribution::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

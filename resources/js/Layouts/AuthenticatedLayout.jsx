@@ -7,9 +7,10 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const isAdmin = user?.is_admin === true;
+    const isMember = user?.is_member === true;
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -24,31 +25,45 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    href={route('admin.members.index')}
-                                    active={route().current('admin.members.*')}
-                                >
-                                    Members
-                                </NavLink>
-                                <NavLink
-                                    href={route('admin.events.index')}
-                                    active={route().current('admin.events.*')}
-                                >
-                                    Events
-                                </NavLink>
-                                {/* NEW: Contributions Link */}
-                                <NavLink
-                                    href={route('admin.contributions.index')}
-                                    active={route().current('admin.contributions.*')}
-                                >
-                                    Contributions
-                                </NavLink>
+                                {/* Admin links */}
+                                {isAdmin && (
+                                    <>
+                                        <NavLink
+                                            href={route('dashboard')}
+                                            active={route().current('dashboard')}
+                                        >
+                                            Dashboard
+                                        </NavLink>
+                                        <NavLink
+                                            href={route('admin.members.index')}
+                                            active={route().current('admin.members.*')}
+                                        >
+                                            Members
+                                        </NavLink>
+                                        <NavLink
+                                            href={route('admin.events.index')}
+                                            active={route().current('admin.events.*')}
+                                        >
+                                            Events
+                                        </NavLink>
+                                        <NavLink
+                                            href={route('admin.contributions.index')}
+                                            active={route().current('admin.contributions.*')}
+                                        >
+                                            Contributions
+                                        </NavLink>
+                                    </>
+                                )}
+
+                                {/* Member-only link */}
+                                {isMember && (
+                                    <NavLink
+                                        href={route('my.contributions')}
+                                        active={route().current('my.contributions')}
+                                    >
+                                        My Contributions
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -62,7 +77,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
                                             >
                                                 {user.name}
-
                                                 <svg
                                                     className="-me-0.5 ms-2 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -80,9 +94,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
+                                        <Dropdown.Link href={route('profile.edit')}>
                                             Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
@@ -147,31 +159,42 @@ export default function AuthenticatedLayout({ header, children }) {
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('admin.members.index')}
-                            active={route().current('admin.members.*')}
-                        >
-                            Members
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('admin.events.index')}
-                            active={route().current('admin.events.*')}
-                        >
-                            Events
-                        </ResponsiveNavLink>
-                        {/* NEW: Contributions Link for mobile */}
-                        <ResponsiveNavLink
-                            href={route('admin.contributions.index')}
-                            active={route().current('admin.contributions.*')}
-                        >
-                            Contributions
-                        </ResponsiveNavLink>
+                        {isAdmin && (
+                            <>
+                                <ResponsiveNavLink
+                                    href={route('dashboard')}
+                                    active={route().current('dashboard')}
+                                >
+                                    Dashboard
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route('admin.members.index')}
+                                    active={route().current('admin.members.*')}
+                                >
+                                    Members
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route('admin.events.index')}
+                                    active={route().current('admin.events.*')}
+                                >
+                                    Events
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route('admin.contributions.index')}
+                                    active={route().current('admin.contributions.*')}
+                                >
+                                    Contributions
+                                </ResponsiveNavLink>
+                            </>
+                        )}
+                        {isMember && (
+                            <ResponsiveNavLink
+                                href={route('my.contributions')}
+                                active={route().current('my.contributions')}
+                            >
+                                My Contributions
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

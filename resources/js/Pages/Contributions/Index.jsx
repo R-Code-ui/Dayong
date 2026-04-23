@@ -5,13 +5,63 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 export default function ContributionsIndex({ contributions, activeEvent, message }) {
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [search, setSearch] = useState('');
+    const [dateSearch, setDateSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('name'); // 'name', 'date'
+    const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
+    // Local state for notes to avoid server request on every keystroke
+    const [localNotes, setLocalNotes] = useState({});
+
+    // Helper to format a date for display (e.g., "Apr 23, 2026")
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    // Filtered + Sorted contributions (client‑side)
     const filteredContributions = useMemo(() => {
-        if (!search) return contributions;
-        return contributions.filter(c =>
-            c.member.name.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [contributions, search]);
+        let result = [...contributions];
+
+        // 1. Search by member name
+        if (search) {
+            result = result.filter(c =>
+                c.member.name.toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        // 2. Search by date (flexible – matches formatted date string)
+        if (dateSearch) {
+            result = result.filter(c => {
+                const formattedDate = formatDateForDisplay(c.date_given);
+                return formattedDate.toLowerCase().includes(dateSearch.toLowerCase());
+            });
+        }
+
+        // 3. Filter by status
+        if (statusFilter !== 'all') {
+            result = result.filter(c => c.status === statusFilter);
+        }
+
+        // 4. Sorting
+        result.sort((a, b) => {
+            let aVal, bVal;
+            if (sortBy === 'name') {
+                aVal = a.member.name;
+                bVal = b.member.name;
+            } else if (sortBy === 'date') {
+                aVal = a.date_given ? new Date(a.date_given) : new Date(0);
+                bVal = b.date_given ? new Date(b.date_given) : new Date(0);
+            }
+            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return result;
+    }, [contributions, search, dateSearch, statusFilter, sortBy, sortOrder]);
 
     const toggleSelectAll = () => {
         if (selectedMembers.length === filteredContributions.length) {
@@ -48,12 +98,30 @@ export default function ContributionsIndex({ contributions, activeEvent, message
         }, { preserveScroll: true });
     };
 
-    // Helper to format date from backend to YYYY-MM-DD
+    // Helper to format date from backend to YYYY-MM-DD (for input)
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '';
         return date.toISOString().split('T')[0];
+    };
+
+    // Handle notes blur – save only when leaving the field
+    const handleNotesBlur = (contributionId, value) => {
+        const originalContribution = contributions.find(c => c.id === contributionId);
+        if (originalContribution && originalContribution.notes !== value) {
+            updateField(contributionId, 'notes', value);
+        }
+    };
+
+    // Toggle sort for a given field
+    const toggleSort = (field) => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(field);
+            setSortOrder('asc');
+        }
     };
 
     if (message) {
@@ -99,8 +167,8 @@ export default function ContributionsIndex({ contributions, activeEvent, message
                         </button>
                     </div>
 
-                    {/* Search */}
-                    <div className="mb-4">
+                    {/* Filters & Sorting */}
+                    <div className="mb-4 flex flex-wrap gap-4 items-center">
                         <input
                             type="text"
                             placeholder="Search member..."
@@ -108,6 +176,39 @@ export default function ContributionsIndex({ contributions, activeEvent, message
                             onChange={e => setSearch(e.target.value)}
                             className="rounded border px-3 py-1"
                         />
+
+                        <input
+                            type="text"
+                            placeholder="Filter by date (e.g., Aug 20, 2026)"
+                            value={dateSearch}
+                            onChange={e => setDateSearch(e.target.value)}
+                            className="rounded border px-3 py-1"
+                        />
+
+                        <select
+                            value={statusFilter}
+                            onChange={e => setStatusFilter(e.target.value)}
+                            className="rounded border px-3 py-1"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="partial">Partial</option>
+                            <option value="completed">Completed</option>
+                        </select>
+
+                        <button
+                            onClick={() => toggleSort('name')}
+                            className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+                        >
+                            Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </button>
+
+                        <button
+                            onClick={() => toggleSort('date')}
+                            className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+                        >
+                            Date Given {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </button>
                     </div>
 
                     {/* Table */}
@@ -124,6 +225,7 @@ export default function ContributionsIndex({ contributions, activeEvent, message
                                     <th className="px-4 py-2 text-left">Date Given</th>
                                     <th className="px-4 py-2 text-left">Status</th>
                                     <th className="px-4 py-2 text-left">Notes</th>
+                                    <th className="px-4 py-2 text-left">Last Updated By</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y">
@@ -173,10 +275,14 @@ export default function ContributionsIndex({ contributions, activeEvent, message
                                         <td className="px-4 py-2">
                                             <input
                                                 type="text"
-                                                value={contribution.notes || ''}
-                                                onChange={e => updateField(contribution.id, 'notes', e.target.value)}
+                                                value={localNotes[contribution.id] ?? contribution.notes ?? ''}
+                                                onChange={e => setLocalNotes(prev => ({ ...prev, [contribution.id]: e.target.value }))}
+                                                onBlur={e => handleNotesBlur(contribution.id, e.target.value)}
                                                 className="border rounded px-1 w-32"
                                             />
+                                        </td>
+                                        <td className="px-4 py-2 text-gray-500 text-sm">
+                                            {contribution.updater?.name || '—'}
                                         </td>
                                     </tr>
                                 ))}

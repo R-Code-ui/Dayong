@@ -22,7 +22,8 @@ class ContributionController extends Controller
             ]);
         }
 
-        $contributions = Contribution::with('member')
+        // Eager load 'member' AND 'updater' (for audit log)
+        $contributions = Contribution::with(['member', 'updater'])
             ->where('event_id', $activeEvent->id)
             ->get();
 
@@ -80,7 +81,6 @@ class ContributionController extends Controller
     public function myContributions()
     {
         $user = auth()->user();
-        // Use the relationship you just added
         $member = $user->member;
 
         if (!$member) {

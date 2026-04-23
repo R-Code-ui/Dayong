@@ -57,4 +57,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(Member::class, 'user_id');
     }
+
+    protected $appends = ['is_admin', 'is_member'];
+
+    public function getIsAdminAttribute()
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function getIsMemberAttribute()
+    {
+        return $this->hasRole('member');
+    }
 }

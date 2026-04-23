@@ -23,7 +23,7 @@ Route::get('/', function () {
 
 // ========== DASHBOARD (using controller with stats) ==========
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'role:admin'])
     ->name('dashboard');
 
 // Profile routes
