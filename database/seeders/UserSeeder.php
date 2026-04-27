@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Ensure roles exist (creates them if missing)
+        // Ensure roles exist
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $memberRole = Role::firstOrCreate(['name' => 'member', 'guard_name' => 'web']);
 
@@ -33,11 +33,16 @@ class UserSeeder extends Seeder
             $user->assignRole($adminRole);
         }
 
-        // ========== MEMBERS (10 existing members) ==========
+        // ========== MEMBERS ==========
+        // Get all members (already seeded by MemberSeeder)
         $members = Member::all();
 
         foreach ($members as $member) {
-            $email = strtolower(str_replace(' ', '.', $member->name)) . '@dayong.com';
+            // Create safe email: lowercase, replace spaces with dots, remove special characters
+            $emailBase = strtolower(str_replace(' ', '.', $member->name));
+            $emailBase = preg_replace('/[^a-z0-9.]/', '', $emailBase); // remove any non-alphanumeric except dot
+            $email = $emailBase . '@dayong.com';
+
             $user = User::firstOrCreate(
                 ['email' => $email],
                 [

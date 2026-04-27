@@ -20,56 +20,63 @@ export default function Edit({ event }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Edit Event</h2>}
+            header={<h2 className="text-2xl font-black tracking-tight text-[#080616]">Edit Event</h2>}
         >
             <Head title="Edit Event" />
             <div className="py-6">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <form onSubmit={handleSubmit} className="p-6">
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Event Name</label>
+                <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+                    <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/50">
+                        <div className="bg-[#1A1953] px-8 py-6">
+                            <h3 className="text-lg font-bold text-white">Update Schedule</h3>
+                            <p className="text-xs text-gray-300">Modifying settings for: <span className="text-white underline">{event.name}</span></p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-8">
+                            <div className="mb-6">
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Event Name</label>
                                 <input
                                     type="text"
                                     value={form.name}
                                     onChange={e => setForm({ ...form, name: e.target.value })}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                    className="block w-full rounded-xl border-gray-100 bg-gray-50/50 py-4 text-sm font-bold focus:border-[#2F2FE4] focus:ring-[#2F2FE4] transition-all"
                                     required
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Date</label>
+                            <div className="mb-6">
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Date</label>
                                 <input
                                     type="date"
                                     value={form.date}
                                     onChange={e => setForm({ ...form, date: e.target.value })}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                    className="block w-full rounded-xl border-gray-100 bg-gray-50/50 py-4 text-sm font-bold focus:border-[#2F2FE4] focus:ring-[#2F2FE4] transition-all"
                                     required
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={form.is_active}
-                                        onChange={e => setForm({ ...form, is_active: e.target.checked })}
-                                        className="mr-2 rounded border-gray-300"
-                                    />
-                                    Set as Active Event
+                            <div className="mb-8">
+                                <label className="group flex cursor-pointer items-center gap-3">
+                                    <div className="relative flex h-5 w-5 items-center justify-center rounded border-2 border-gray-200 bg-white transition-colors group-hover:border-[#2F2FE4]">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.is_active}
+                                            onChange={e => setForm({ ...form, is_active: e.target.checked })}
+                                            className="peer absolute h-full w-full opacity-0 cursor-pointer"
+                                        />
+                                        <div className="h-2.5 w-2.5 scale-0 bg-[#2F2FE4] transition-transform peer-checked:scale-100 rounded-[1px]"></div>
+                                    </div>
+                                    <span className="text-sm font-bold text-[#1A1953]">Set as Active Event</span>
                                 </label>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+                                    className="flex-1 rounded-xl bg-[#2F2FE4] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#2F2FE4]/20 hover:bg-[#162E93] disabled:opacity-50 transition-all active:scale-95"
                                 >
-                                    Update Event
+                                    {processing ? 'Saving...' : 'Update Event'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => router.get(route('admin.events.index'))}
-                                    className="rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                                    className="rounded-xl bg-gray-100 px-6 py-4 text-sm font-bold text-[#1A1953] hover:bg-gray-200 transition-all"
                                 >
                                     Cancel
                                 </button>

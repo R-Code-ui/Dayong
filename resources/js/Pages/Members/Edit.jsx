@@ -16,37 +16,41 @@ export default function Edit({ member }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Edit Member</h2>}
+            header={<h2 className="text-2xl font-black tracking-tight text-[#080616]">Edit Member</h2>}
         >
             <Head title="Edit Member" />
             <div className="py-6">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <form onSubmit={handleSubmit} className="p-6">
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <div className="mx-auto max-w-2xl">
+                    <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/50">
+                        <div className="bg-[#1A1953] px-8 py-6">
+                            <h3 className="text-lg font-bold text-white">Modify Profile</h3>
+                            <p className="text-xs text-gray-300 font-medium">Update the name for: <span className="text-white underline">{member.name}</span></p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-8">
+                            <div className="mb-8">
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Full Name</label>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={e => setName(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="block w-full rounded-xl border-gray-100 bg-gray-50/50 py-4 text-sm font-bold focus:border-[#2F2FE4] focus:ring-[#2F2FE4] transition-all"
                                     required
                                 />
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+                                    className="flex-1 rounded-xl bg-[#2F2FE4] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#2F2FE4]/20 hover:bg-[#162E93] disabled:opacity-50 transition-all active:scale-95"
                                 >
-                                    Update Member
+                                    {processing ? 'Updating...' : 'Update Member Details'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => router.get(route('admin.members.index'))}
-                                    className="rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                                    className="rounded-xl bg-gray-100 px-6 py-4 text-sm font-bold text-[#1A1953] hover:bg-gray-200 transition-all"
                                 >
-                                    Cancel
+                                    Cancel Changes
                                 </button>
                             </div>
                         </form>
